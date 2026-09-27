@@ -1,6 +1,8 @@
 import { ArrowDown, ArrowRight, ArrowUpRight, Baby, BedDouble, Bike, Car, MapPin, Maximize2, PawPrint, Phone, Snowflake, Users, Wifi } from "lucide-react";
 import BookingCalendar from "./BookingCalendar";
 
+export const dynamic = "force-static";
+
 const photos = {
   exterior: "https://resc.deskline.net/images/TRN/1/5b37f272-2bcc-4e46-8067-1f737f4d31f6/99/image.jpeg",
   bedroom: "https://resc.deskline.net/images/TRN/1/d752ca4b-01a7-48fe-8087-5713a6df9348/99/image.jpeg",
@@ -80,6 +82,7 @@ function ContactIcon({ kind }: { kind: "email" | "phone" }) {
 export function HomePage({ language = "it" }: { language?: "it" | "en" }) {
   const t = copy[language];
   const comfortNames = t.comfortNames;
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
   return <main id="top" lang={language}>
     <header className="site-header">
       <a href="#top" aria-label={t.top}><Brand light /></a>
@@ -90,7 +93,7 @@ export function HomePage({ language = "it" }: { language?: "it" | "en" }) {
       <nav className="desktop-nav" aria-label={language === "it" ? "Navigazione principale" : "Main navigation"}>
         <a href="#appartamenti">{t.nav[0]}</a><a href="#sauna">{t.nav[1]}</a><a href="#val-di-sole">{t.nav[2]}</a><a href="#disponibilita">{t.nav[3]}</a>
       </nav>
-      <nav className="language-switch" aria-label={language === "it" ? "Lingua" : "Language"}><a href="/" hrefLang="it" lang="it" aria-current={language === "it" ? "page" : undefined}>IT</a><span aria-hidden="true">/</span><a href="/en" hrefLang="en" lang="en" aria-current={language === "en" ? "page" : undefined}>EN</a></nav>
+      <nav className="language-switch" aria-label={language === "it" ? "Lingua" : "Language"}><a href={`${basePath}/`} hrefLang="it" lang="it" aria-current={language === "it" ? "page" : undefined}>IT</a><span aria-hidden="true">/</span><a href={`${basePath}/en.html`} hrefLang="en" lang="en" aria-current={language === "en" ? "page" : undefined}>EN</a></nav>
       <a className="header-book" href="#disponibilita">{t.book} <ArrowUpRight size={18} /></a>
       <details className="mobile-menu">
         <summary>Menu <span aria-hidden="true">☰</span></summary>
@@ -166,7 +169,7 @@ export function HomePage({ language = "it" }: { language?: "it" | "en" }) {
     <section className="location section-wrap"><div><p className="eyebrow blue">{t.locationLabel}</p><h2>{t.locationTitle}</h2><p>{t.locationText}</p><ul className="location-facts">{t.locationFacts.map((fact) => <li key={fact}>{fact}</li>)}</ul><a className="text-link location-directions" href="https://www.google.com/maps/dir/?api=1&amp;destination=46.3227%2C10.8723&amp;travelmode=driving" target="_blank" rel="noopener noreferrer">{t.directions} <ArrowUpRight size={18} /></a></div><div className="map-panel"><iframe title={t.mapTitle} src="https://www.google.com/maps?q=Villa%20Bonetei%2C%20Via%20dei%20Bonetei%204%2C%20Dimaro%20Folgarida&amp;output=embed" loading="lazy" referrerPolicy="no-referrer-when-downgrade" /><div className="map-caption"><MapPin size={21} strokeWidth={1.6} /><span>Villa Bonetei · Via dei Bonetei 4, Dimaro Folgarida</span></div></div></section>
 
     <section className="host-section">
-      <div className="host-photo"><img src="/nadia.png" alt={language === "it" ? "Nadia, la proprietaria di Villa Bonetei" : "Nadia, your host at Villa Bonetei"} loading="lazy" /></div>
+      <div className="host-photo"><img src={`${basePath}/nadia.png`} alt={language === "it" ? "Nadia, la proprietaria di Villa Bonetei" : "Nadia, your host at Villa Bonetei"} loading="lazy" /></div>
       <div className="host-copy"><p className="eyebrow blue">{t.hostLabel}</p><h2>{t.hostTitle}</h2><p>{t.hostText}</p><a className="button button-blue" href="mailto:nadiaramponi@bonetei.it">{t.hostCta} <ArrowUpRight size={18} /></a></div>
     </section>
 

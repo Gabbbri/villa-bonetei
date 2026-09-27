@@ -14,14 +14,14 @@ const iso = (date?: Date) => date ? format(date, "yyyy-MM-dd") : "";
 const words = {
   it: {
     toolTitle: "Prepara una richiesta di soggiorno", toolDescription: "Imposta arrivo, partenza e numero di ospiti nel calendario visibile senza inviare la richiesta.", arrivalDescription: "Data di arrivo YYYY-MM-DD", departureDescription: "Data di partenza YYYY-MM-DD", invalid: "Date o numero di ospiti non validi.",
-    selectBoth: "Seleziona arrivo e partenza.", sendError: "Non siamo riusciti a inviare la richiesta. Riprova.", successLabel: "RICHIESTA INVIATA", thanks: "Grazie per averci scritto.", successText: "Abbiamo registrato la tua richiesta di soggiorno.", newRequest: "Nuova richiesta",
+    selectBoth: "Seleziona arrivo e partenza.", sendError: "Non siamo riusciti a preparare la richiesta. Riprova.", successLabel: "RICHIESTA PREPARATA", thanks: "La tua richiesta è pronta.", successText: "Completa l’invio dal tuo programma di posta.", newRequest: "Nuova richiesta",
     arrivalAria: "Scegli la data di arrivo", departureAria: "Scegli la data di partenza", arrival: "ARRIVO", departure: "PARTENZA", chooseDate: "Scegli una data", guests: "OSPITI", close: "Chiudi", complete: "Completa la richiesta", chooseDates: "Scegli le date",
     calendarNote: "Seleziona arrivo e partenza. Verificheremo la disponibilità per le date indicate.", formIntro: "Raccontaci come contattarti e prepareremo una proposta per il tuo soggiorno.", night: "notte", nights: "notti", decrease: "Riduci ospiti", increase: "Aumenta ospiti",
     name: "Nome e cognome", email: "Indirizzo email", phone: "Recapito telefonico", optional: "facoltativo", message: "La tua richiesta", messageHint: "Se hai preferenze per un appartamento o esigenze particolari, scrivile qui.", send: "Richiedi una proposta", privacy: "La richiesta non comporta alcun pagamento né conferma automatica della disponibilità.",
   },
   en: {
     toolTitle: "Prepare a stay enquiry", toolDescription: "Set arrival, departure and guest count in the visible calendar without sending the enquiry.", arrivalDescription: "Arrival date YYYY-MM-DD", departureDescription: "Departure date YYYY-MM-DD", invalid: "Invalid dates or guest count.",
-    selectBoth: "Select your arrival and departure dates.", sendError: "We could not send your enquiry. Please try again.", successLabel: "ENQUIRY SENT", thanks: "Thank you for getting in touch.", successText: "We have received your stay enquiry.", newRequest: "New enquiry",
+    selectBoth: "Select your arrival and departure dates.", sendError: "We could not prepare your enquiry. Please try again.", successLabel: "ENQUIRY READY", thanks: "Your enquiry is ready.", successText: "Complete the send action in your email app.", newRequest: "New enquiry",
     arrivalAria: "Choose arrival date", departureAria: "Choose departure date", arrival: "ARRIVAL", departure: "DEPARTURE", chooseDate: "Choose a date", guests: "GUESTS", close: "Close", complete: "Complete enquiry", chooseDates: "Choose dates",
     calendarNote: "Select your arrival and departure dates. We will check availability for your stay.", formIntro: "Leave your contact details and we will prepare an offer for your stay.", night: "night", nights: "nights", decrease: "Remove a guest", increase: "Add a guest",
     name: "Full name", email: "Email address", phone: "Phone number", optional: "optional", message: "Your enquiry", messageHint: "Let us know if you prefer a particular apartment or have any special requests.", send: "Request an offer", privacy: "Sending an enquiry does not involve payment or automatically confirm availability.",
@@ -84,7 +84,7 @@ export default function BookingCalendar({ language = "it" }: { language?: "it" |
     return () => lifecycle.abort();
   }, [w]);
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+  function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     if (!range?.from || !range?.to) {
@@ -92,22 +92,23 @@ export default function BookingCalendar({ language = "it" }: { language?: "it" |
       return;
     }
     const form = new FormData(event.currentTarget);
-    setStatus("sending");
     try {
-      const response = await fetch("/api/inquiries", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          arrival: iso(range.from),
-          departure: iso(range.to),
-          guests,
-          name: String(form.get("name") || ""),
-          email: String(form.get("email") || ""),
-          phone: String(form.get("phone") || ""),
-          message: String(form.get("message") || ""),
-        }),
-      });
-      if (!response.ok) throw new Error("Request failed");
+      const subject = language === "it" ? "Richiesta soggiorno Villa Bonetei" : "Villa Bonetei stay enquiry";
+      const labels = language === "it"
+        ? { arrival: "Arrivo", departure: "Partenza", guests: "Ospiti", name: "Nome", email: "Email", phone: "Telefono", message: "Messaggio" }
+        : { arrival: "Arrival", departure: "Departure", guests: "Guests", name: "Name", email: "Email", phone: "Phone", message: "Message" };
+      const body = [
+        `${labels.arrival}: ${iso(range.from)}`,
+        `${labels.departure}: ${iso(range.to)}`,
+        `${labels.guests}: ${guests}`,
+        "",
+        `${labels.name}: ${String(form.get("name") || "")}`,
+        `${labels.email}: ${String(form.get("email") || "")}`,
+        `${labels.phone}: ${String(form.get("phone") || "")}`,
+        "",
+        `${labels.message}: ${String(form.get("message") || "")}`,
+      ].join("\n");
+      window.location.href = `mailto:nadiaramponi@bonetei.it?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       setStatus("success");
     } catch {
       setStatus("error");
